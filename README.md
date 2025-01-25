@@ -8,6 +8,7 @@ Welcome to PwndaHash!
 Purpose:
 
 Proof-of-concept file encryption based off gambling game "Plinko" or Pachinko board game
+
 Originally designed as a way to encrypt files to store crypto wallet mnemonic phrases with a singular memorable password without having to store a long key. 
 
 
