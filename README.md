@@ -53,4 +53,4 @@ PC2 decrypts the file using private key then re-encrypts it with the same key an
 
 (new encrypted file is different but since they should both have the same private key the decrypted version will be the same)
 
-PC1 decrypts the file and checks in decrypted file version matches they're own
+PC1 decrypts the file and checks if decrypted file version matches they're own
