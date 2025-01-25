@@ -37,17 +37,7 @@ Unrepeatable. Each new encryption output is different due to normal distribution
 
 Large Possibilities. Using utf-8 for passwords and as encrypted values creates really large possible password combinations, also brute forcing an encrypted character can create a infinite number of outputs with no certainty of the original message. The message "The red fox" can be encrypted and the brute forced output could be "wUe 3<w a&(" or "ran ice tea". 
 
-
-
-
-
-
-
-
-
-
-
-
+----------------------------------------------------------------------------------------------------
 Possible Handshake:
 
 Public Key: Encrypted File
@@ -56,6 +46,9 @@ Private Key: Password
 
 
 PC1 sends encrypted file using private key
+
 PC1 requests a the unencrypted Version
+
 PC2 decrypts the file using private and sends it back
+
 PC1 Checks if decrypted version matches they're own
