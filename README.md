@@ -14,7 +14,7 @@ Originally designed as a way to encrypt files to store crypto wallet mnemonic ph
 
 Mechanics:
 
-Password get turned into buckets at the bottom of the board. Each character in a file gets turned into a ball and then released. When a ball hits a bucket the two values get added together as well as a salt that contains the value of the last character value of the password itself. The sum along with the password index get stored together in a separate file. Despite balls having different falling rates, they are processed and written to an output file as if they were first in first out.
+Password gets turned into buckets at the bottom of the board. Each character in a file gets turned into a ball and then released. When a ball hits a bucket the two values get added together as well as a salt that contains the value of the last character value of the password itself. The sum along with the password index get stored together in a separate file. Despite balls having different falling rates, they are processed and written to an output file as if they were first in first out.
 
 
 Security:
