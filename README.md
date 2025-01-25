@@ -47,7 +47,7 @@ Private Key: Password
 
 PC1 sends encrypted file using private key
 
-PC1 requests a the unencrypted Version
+PC1 requests the unencrypted Version
 
 PC2 decrypts the file using private and sends it back
 
