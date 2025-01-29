@@ -1,0 +1,9 @@
+Example Characters and Code Points:
+
+Character|Code Point (Hex)|UTF-8 Bytes
+
+𐍈 | U+10348	| F0 90 8D 88
+𝄞 | U+1D11E	| F0 9D 84 9E
+𝒜 | U+1D49C	| F0 9D 92 9C
+𒀀 | U+12000	| F0 92 80 80
+😍 | U+1F60D	| F0 9F 98 8D

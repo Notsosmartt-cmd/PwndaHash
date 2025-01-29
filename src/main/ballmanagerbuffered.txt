@@ -1,0 +1,110 @@
+package V1O.Th;
+
+import java.awt.Color;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
+import javax.swing.Timer;
+
+public class BallManager {
+    private List<Ball> activeBalls;
+    private List<Ball> pendingBalls;
+    private Timer spawnTimer;
+    private final int spawnDelay = 0; // Spawn delay in milliseconds
+    private final String filename;
+    private final int windowWidth;
+    private final float gravity = 0.1f; // Adjust this value as needed
+
+
+    public BallManager(String filename, int windowWidth) {
+        this.activeBalls = new ArrayList<>();
+        this.pendingBalls = new ArrayList<>();
+        this.filename = filename;
+        this.windowWidth = windowWidth;
+        loadBallsFromFile(filename);
+        startSpawnTimer();
+      //  this.gravity = new float;
+    }
+
+    private void loadBallsFromFile(String filename) {
+        try (BufferedReader reader = Files.newBufferedReader(Paths.get(filename), StandardCharsets.UTF_8)) {
+            Random random = new Random();
+            int radius = 10;
+            int y = 10; // Starting y-position for all balls
+            int x = 500;
+            int i = 0; // Ball index
+            
+            String line;
+            while ((line = reader.readLine()) != null) {
+                for (int offset = 0; offset < line.length(); offset++, i++) {
+                    float speedX = random.nextFloat() * 10f + 3f;
+                    float speedY = random.nextFloat() * 10f + 3f;
+
+                    Color color = switch (i % 3) {
+                        case 0 -> Color.RED;
+                        case 1 -> Color.GREEN;
+                        case 2 -> Color.YELLOW;
+                        default -> Color.WHITE;
+                    };
+
+                    int utf8Value = line.codePointAt(offset);
+                    String entry = i + "/" + utf8Value;
+
+                    Ball ball = new Ball(x, y, speedX, speedY, radius, color, 1, entry);
+                    pendingBalls.add(ball);
+
+                    // Handle surrogate pairs
+                    if (Character.isSupplementaryCodePoint(utf8Value)) {
+                        offset++;
+                    }
+
+                    System.out.println("Ball added: " + entry);
+                }
+            }
+        } catch (IOException e) {
+            System.err.println("Error reading file: " + e.getMessage());
+        }
+    }
+
+    private void startSpawnTimer() {
+        spawnTimer = new Timer(spawnDelay, e -> spawnBall());
+        spawnTimer.start();
+    }
+
+    private void spawnBall() {
+        if (!pendingBalls.isEmpty()) {
+            activeBalls.add(pendingBalls.remove(0));
+        } else {
+            spawnTimer.stop();
+        }
+    }
+
+    public List<Ball> getActiveBalls() {
+        return activeBalls;
+    }
+
+    public void removeBall(Ball ball) {
+        activeBalls.remove(ball);
+    }
+
+    public boolean hasPendingBalls() {
+        return !pendingBalls.isEmpty();
+    }
+
+    public void reset(String filename) {
+        activeBalls.clear();
+        pendingBalls.clear();
+        loadBallsFromFile(filename);
+        startSpawnTimer();
+    }
+    public float getGravity() {
+        return gravity;
+    }
+
+}
