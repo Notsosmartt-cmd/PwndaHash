@@ -1,8 +1,8 @@
 // Launcher.java
 package main;
 
-//import main.Main; // Import your PwndaHash Main class
-import lite.liteApp; // Import your PwndaHashLite MainApp class
+//import main.Main; 
+import lite.liteApp; 
 import decrypt.decryptApp;
 
 import javax.swing.*;
