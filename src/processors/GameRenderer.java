@@ -1,4 +1,4 @@
-package proccessors;
+package processors;
 
 import java.awt.Color;
 import java.awt.Font;

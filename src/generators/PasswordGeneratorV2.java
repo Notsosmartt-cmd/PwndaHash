@@ -9,7 +9,8 @@ public class PasswordGeneratorV2 {
     public static void main(String[] args) {
         // Generate a random password length between 128 and 512
         SecureRandom random = new SecureRandom();
-        int passwordLength = 128 + random.nextInt(512 - 128 + 1); // Random length in range [128, 512]
+        int passwordLength = 512;
+        //int passwordLength = 128 + random.nextInt(512 - 128 + 1); // Random length in range [128, 512]
 
         // Generate the password
         String password = generatePassword(passwordLength);
@@ -27,10 +28,43 @@ public class PasswordGeneratorV2 {
         }
     }
 
+    /*
+    public static String generatePassword(int length) {
+        StringBuilder allCharsBuilder = new StringBuilder();
+        
+        // Include characters from U+0020 (32) to U+FFFF (65535)
+        for (int i = 32; i <= 0xFFFF; i++) {
+            // Skip surrogate pairs (U+D800-U+DFFF)
+            if (i >= 0xD800 && i <= 0xDFFF) continue;
+            
+            // Skip non-characters (U+FDD0-U+FDEF and U+FFFE-U+FFFF)
+            if ((i >= 0xFDD0 && i <= 0xFDEF) || i == 0xFFFE || i == 0xFFFF) continue;
+            
+            // Skip control characters (including legacy C0/C1 controls)
+            if (Character.isISOControl(i)) continue;
+            
+            // Skip undefined code points
+            if (!Character.isDefined(i)) continue;
+            
+            allCharsBuilder.append((char) i);
+        }
+
+        String allChars = allCharsBuilder.toString();
+        SecureRandom random = new SecureRandom();
+        StringBuilder password = new StringBuilder();
+
+        for (int i = 0; i < length; i++) {
+            password.append(allChars.charAt(random.nextInt(allChars.length())));
+        }
+
+        return shuffleString(password.toString(), random);
+    }
+    */
+    
     public static String generatePassword(int length) {
         // Define the full range of printable ASCII characters
         StringBuilder allCharsBuilder = new StringBuilder();
-        for (int i = 32; i <= 126; i++) {
+        for (int i = 32; i <= 128; i++) {
             allCharsBuilder.append((char) i);
         }
         String allChars = allCharsBuilder.toString();

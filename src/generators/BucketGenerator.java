@@ -7,6 +7,8 @@ import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.List;
 
+import processors.processPassword;
+
 public class BucketGenerator {
     // 2D array to represent the bricks
     public String[][] map;
@@ -14,7 +16,7 @@ public class BucketGenerator {
     public int brickHeight; // Height of each brick
     public int offsetX;     // Horizontal offset for the brick grid
     public int offsetY;     // Vertical offset for the brick grid
-
+    processPassword processor = new processPassword();
     // Constructor initializes the map based on the password length
     public BucketGenerator(String password, int gameWidth, int gameHeight) {
         // Limit password length to 512
@@ -27,8 +29,10 @@ public class BucketGenerator {
         int cols = password.length();
 
         map = new String[rows][cols];
-        List<String> passwordData = processPassword(password);
-
+        //List<String> passwordData = processPassword(password);
+        
+        List<String> passwordData = processPassword.processPassword(password);
+        
         for (int i = 0; i < map.length; i++) {
             for (int j = 0; j < map[0].length; j++) {
                 map[i][j] = passwordData.get(j);
@@ -69,31 +73,4 @@ public class BucketGenerator {
             }
         }
     }
-
-
-    // Processes the password string to store each character's position and UTF-8 value
-    public List<String> processPassword(String password) {
-        // Create a string array to store the character position and UTF-8 values
-        //String[] charData = new String[password.length()];
-        
-        List<String> charData = new ArrayList<>();
-        
-        for (int i = 0; i < password.length(); i++) {
-            // Get the character at the current position
-        	 // Get the UTF-8 value of the character
-            int value = password.codePointAt(i); 
-            String entry = Integer.toString(value); // position and value 
-          
-            // Store the position and UTF-8 value in the string array
-            charData.add(entry);
-         // Skip the second char in surrogate pairs
-            if (Character.isSupplementaryCodePoint(value)) {
-                i++; // Skip the second char in the surrogate pair
-            }
-  }
-
-        return charData;
-    }
-    
-
 }

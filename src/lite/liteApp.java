@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
 import main.Launcher;
+import processors.Utf8Utils;
 
 public class liteApp {
    

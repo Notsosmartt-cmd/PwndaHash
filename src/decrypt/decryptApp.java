@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
 import main.Launcher;
+import processors.Utf8Utils;
+
 
 public class decryptApp {
    
@@ -152,8 +154,12 @@ public class decryptApp {
                     String outputFileName = "(Decrypted)" + inputFileName;
                     File outputFile = new File(inputFile.getParent(), outputFileName);
                     
-
+                    //password is being directly imported to integer and doesn't consider surrogate. Import characters, then use UTF-8 utils to change them to int
+                    
+                 //   List<Character> utfChar = Utf8Utils.convertToUtf8ArrayList(password);
+                    
                     List<Integer> utf8Values = Utf8Utils.convertToUtf8ArrayList(password);
+                    
                     Decrypter fileProcessor = new Decrypter(utf8Values);
 
                  

@@ -1,4 +1,4 @@
-package proccessors;
+package processors;
 
 import java.awt.Rectangle;
 import java.io.BufferedReader;
@@ -16,6 +16,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import generators.BucketGenerator;
 import generators.PegGenerator;
 import main.Gameplay;
+import processors.processPassword;
 
 public class CollisionDetector {
     private BucketGenerator bucket;
@@ -25,6 +26,7 @@ public class CollisionDetector {
     private List<String> newest; // Shared list for collision data
     private List<PegGenerator.Peg> pegs;
     private String inputFilePath;
+    
     
     public CollisionDetector(BucketGenerator map, BallManager ballManager, int score, String password,List<PegGenerator.Peg> pegs, String inputFilePath) {
         this.bucket = map;
@@ -78,7 +80,8 @@ public class CollisionDetector {
     public void detectCollisions() {
         List<Ball> ballsToRemove = new ArrayList<>();
         Random random = new Random();
-        List<String> processedPassword = bucket.processPassword(Gameplay.password);
+        
+        List<String> processedPassword =processPassword.processPassword(Gameplay.password);
         List<Ball> activeBalls = ballManager.getActiveBalls();
         
         int[] passwordValArray = new int[processedPassword.size()]; // Create an integer array with the same size
@@ -86,6 +89,9 @@ public class CollisionDetector {
         // Convert each String element to an integer and store in the array
         for (int i = 0; i < processedPassword.size(); i++) {
             passwordValArray[i] = Integer.parseInt(processedPassword.get(i));
+            if (Character.isSupplementaryCodePoint(passwordValArray[i])) {
+                i++; // Skip the second char in the surrogate pair
+            }
         }
         
      // Retrieve the last element of the array

@@ -1,4 +1,4 @@
-package proccessors; 
+package processors; 
 // Specifies the package name for organizing the Ball class into the "test" package.
 
 import java.awt.Color;

@@ -8,6 +8,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 
+import processors.Utf8Utils;
+
+
 public class Decrypter {
     private final List<Integer> utf8Values;
 

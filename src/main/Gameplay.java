@@ -12,9 +12,9 @@ import javax.swing.Timer;
 
 import generators.BucketGenerator;
 import generators.PegGenerator;
-import proccessors.BallManager;
-import proccessors.CollisionDetector;
-import proccessors.GameRenderer;
+import processors.BallManager;
+import processors.CollisionDetector;
+import processors.GameRenderer;
 
 
 public class Gameplay extends JPanel implements KeyListener, ActionListener {
