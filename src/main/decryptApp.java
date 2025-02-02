@@ -1,14 +1,17 @@
 // MainApp.java
-package decrypt;
+package main;
 
 import javax.swing.*;
+
+import decrypt.Decrypter;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
-import main.Launcher;
+
 import processors.Utf8Utils;
 
 

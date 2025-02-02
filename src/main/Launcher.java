@@ -4,8 +4,7 @@ package main;
 //jay waz here
 
 //import main.Main; 
-import lite.liteApp; 
-import decrypt.decryptApp;
+import lite.liteApp;
 
 import javax.swing.*;
 import java.awt.*;
