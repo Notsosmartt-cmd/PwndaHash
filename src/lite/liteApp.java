@@ -150,9 +150,10 @@ public class liteApp {
                     String outputFileName = "(Pwnda)" + inputFileName ;
                     File outputFile = new File(inputFile.getParent(), outputFileName);
                     
-                    List<Integer> utf8Values = Utf8Utils.convertToUtf8ArrayList(password);
+                    List<Character> utf8Values = Utf8Utils.convertToCharacterArrayList(password);
                     System.out.println(utf8Values);
                     FileProcessor fileProcessor = new FileProcessor(utf8Values);
+
 
                  
                     

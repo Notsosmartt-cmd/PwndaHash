@@ -12,9 +12,9 @@ import processors.Utf8Utils;
 
 
 public class Decrypter {
-    private final List<Integer> utf8Values;
+    private final List<Character> utf8Values;
 
-    public Decrypter(List<Integer> utf8Values) {
+    public Decrypter(List<Character> utf8Values) {
         this.utf8Values = utf8Values;
     }
 
@@ -36,6 +36,7 @@ public class Decrypter {
                 if (parts.length == 2) {
                     try {
                         int index = Integer.parseInt(parts[0]);
+                        
                         char secondChar = parts[1].charAt(0);
 
                         // Validate index
@@ -45,15 +46,16 @@ public class Decrypter {
                         }
 
                         // Get the last value from the utf8Values ArrayList
-                        int salt = utf8Values.get(utf8Values.size() - 1);
+                        char salt = utf8Values.get(utf8Values.size() - 1);
 
-                        int value = utf8Values.get(index);
-                        int passwordUTF = value + salt;
+                        char value = utf8Values.get(index);
+                        
+                        char passwordUTF = (char) (value + salt);
 
-                        int secondUtf8Value = (int) secondChar;
-                        int result = Math.abs(passwordUTF - secondUtf8Value);
+                        //int secondUtf8Value = (int) secondChar;
+                        char result = (char) Math.abs(passwordUTF - secondChar);
 
-                        writer.write((char) result);
+                        writer.write(result);
                     } catch (NumberFormatException e) {
                         writer.write("Invalid index format in line: " + line + "\n");
                     }

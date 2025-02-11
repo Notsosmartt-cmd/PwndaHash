@@ -161,7 +161,8 @@ public class decryptApp {
                     
                  //   List<Character> utfChar = Utf8Utils.convertToUtf8ArrayList(password);
                     
-                    List<Integer> utf8Values = Utf8Utils.convertToUtf8ArrayList(password);
+                    List<Character> utf8Values = Utf8Utils.convertToCharacterArrayList(password);
+                    System.out.println(utf8Values);
                     
                     Decrypter fileProcessor = new Decrypter(utf8Values);
 

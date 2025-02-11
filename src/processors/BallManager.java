@@ -63,9 +63,6 @@ public class BallManager {
 
                     synchronized (pendingBalls) {
                         pendingBalls.add(ball);
-                        
-                        
-                        
                     }
 
                     System.out.println("Ball added: " + entry);

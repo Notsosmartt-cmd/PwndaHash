@@ -39,6 +39,7 @@ public class Gameplay extends JPanel implements KeyListener, ActionListener {
     
     // Game components
     private BucketGenerator bucketGenerator;
+    
     private BallManager ballManager;
     private CollisionDetector collisionDetector;
     private GameRenderer renderer;

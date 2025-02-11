@@ -12,9 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FileProcessor {
-    private final List<Integer> utf8Values;
+    private final List<Character> utf8Values;
 
-    public FileProcessor(List<Integer> utf8Values) {
+    public FileProcessor(List<Character> utf8Values) {
         this.utf8Values = utf8Values;
     }
 

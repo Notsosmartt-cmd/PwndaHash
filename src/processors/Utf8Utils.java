@@ -1,21 +1,16 @@
-// Utf8Utils.java
 package processors;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class Utf8Utils {
-    public static List<Integer> convertToUtf8ArrayList(String password) {
-        List<Integer> utf8Values = new ArrayList<>();
-
-        for (int i = 0; i < password.length(); i++) {
-            int value = password.codePointAt(i); // Get code point
-            utf8Values.add(value); // Add to the list
-            if (Character.isSupplementaryCodePoint(value)) {
-                i++; // Skip the second char in the surrogate pair
-            }
+    public static List<Character> convertToCharacterArrayList(String password) {
+        List<Character> charList = new ArrayList<>();
+        
+        for (char ch : password.toCharArray()) {
+            charList.add(ch);
         }
 
-        return utf8Values;
+        return charList;
     }
 }
