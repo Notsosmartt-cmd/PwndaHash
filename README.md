@@ -37,6 +37,26 @@ Unrepeatable. Each new encryption output is different due to normal distribution
 
 Large Possibilities. Using utf-8 for passwords and as encrypted values creates really large possible password combinations, also brute forcing an encrypted character can create a infinite number of outputs with no certainty of the original message. The message "The red fox" can be encrypted and the brute forced output could be "wUe 3<w a&(" or "ran ice tea". 
 
+
+Optimization:
+
+I dont know how to optimize PwndaHash main. PwndaHashLite & the Decrypt program are lightweight and fast, PwndaHash main is slower because it uses the graphics to actually proccess the encryption. The speed bottleneck for PwndaHash main is at the graphical interface, because that does the actual encrypting so memory management is needed because the array lists that store the pre and post proccessed information grows with time until the graphics are done encrypting the file 
+
+MultiThreading-
+For PwndaHash main multi threading is used to write entries to a file on the user's hard disk if the file being encrypted is really big to save on memory.
+
+Buffered Reading & Writing-
+For PwndaHash main buffered reading is used slowly read files to save on memory just in case the file is too big. Buffered writing is used to slowly write entries from the entry array list and delete the respective written entry from the list so that the entry array list doesn't grow too big and cause memory issues. When using big files all 4 arraylists and both threads have the potential to be used at the same time, so managing memory is important.
+
+ArrayLists-
+For PwndaHash main multiple array lists are used for "queuing" balls such as PendingBalls, ActiveBalls, Entry,and BallsToBeRemoved. Array lists are used instead of actual queues because the user's file size is unknown due to buffered reader slowlky reading the file until the end. An undetermined array list allows for flexable file sizes, and multiple array lists allows multiple threads to manage the balls.
+
+Sorting-
+For PwndaHash main sorting is used to sort the proccessed entries of each ball in order to reconstruct the file based on the ball's index. Since the fourth ball dropped has the chance to fall faster and be proccessed before the first ball, the balls index is still saved for later use in order to sort the balls later.
+
+Hashset-
+For PwndaHash main dupliucate characters are sometimes made when using long generated passwords, because the program draws the buckets 1 pixel wide. This means the ball has a chance to hit multiple buckets at once and get proccessed multiple times. Since the ball's index in the file doesn't change any duplicate balls are removed using a hashset of all indexes proccessed
+
 ----------------------------------------------------------------------------------------------------
 Possible Handshake:
 
