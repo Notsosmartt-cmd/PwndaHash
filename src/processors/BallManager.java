@@ -47,7 +47,8 @@ public class BallManager {
                 int codePoint;
 
                 while ((codePoint = reader.read()) != -1) { // Read one code point at a time
-                    int x = random.nextBoolean() ? 300 : 400; // Randomly assign 300 or 400
+                	String entry = i + "/" + codePoint;
+                	int x = random.nextBoolean() ? 300 : 400; // Randomly assign 300 or 400
                     float speedY = random.nextFloat() * 10f + 3f;
                     float speedX = random.nextBoolean() ? -1 : 1;
                     Color color = switch (i % 3) {
@@ -56,9 +57,7 @@ public class BallManager {
                         case 2 -> Color.YELLOW;
                         default -> Color.WHITE;
                     };
-
-                    String entry = i + "/" + codePoint;
-
+                    
                     Ball ball = new Ball(x, y, speedX, speedY, radius, color, 1, entry);
 
                     synchronized (pendingBalls) {
@@ -82,12 +81,14 @@ public class BallManager {
         spawnTimer = new Timer(spawnDelay, e -> spawnBall());
         spawnTimer.start();
     }
-
+//moves pending balls to active
     private void spawnBall() {
         synchronized (pendingBalls) {
             if (!pendingBalls.isEmpty()) {
                 activeBalls.add(pendingBalls.remove(0));
-            } else if (executorService.isShutdown()) {
+            } 
+            //shuts down thread once pending balls is empty
+            else if (executorService.isShutdown()) {
                 spawnTimer.stop();
             }
         }

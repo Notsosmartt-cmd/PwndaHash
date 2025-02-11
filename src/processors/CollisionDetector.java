@@ -9,8 +9,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import generators.BucketGenerator;
@@ -244,11 +246,10 @@ public class CollisionDetector {
     }
 
     public void sortAndTransform() {
-        synchronized (newest) {
+        
+    	synchronized (newest) {
             if (!newest.isEmpty()) {
-            	
-            	
-            	
+            
             	// Get the directory of the input file
                 Path inputFilePathObj = Paths.get(inputFilePath);
                 Path inputFileDir = inputFilePathObj.getParent();
@@ -286,11 +287,11 @@ public class CollisionDetector {
         // Read, sort, and transform the output.txt content
        
      // Read, sort, and transform the output.txt content
+        
         try {
-            
-         // Read all lines from entry.txt
+            // Read all lines from entry.txt
             List<String> lines = Files.readAllLines(entryFilePath);
-            
+
             // Parse and sort by the first integer in each line
             lines.sort((a, b) -> {
                 int firstA = Integer.parseInt(a.split("/")[0]);
@@ -298,9 +299,28 @@ public class CollisionDetector {
                 return Integer.compare(firstA, firstB);
             });
 
+            /* When using big password the program generates the buckets really small (sometimes 1 pixel wide), so the ball can hit multiple
+            	pixels at once. The program tends to just process the ball twice if it hits two buckets at once, so the first integer (which is the ball's location
+            	in the file) gets put into a hash set and any duplicates of the first integer just gets deleted since the first segment hasn't been touched since 
+            	it was created in ball manager
+            */
+            // Remove lines with duplicate first integers
+            List<String> uniqueLines = new ArrayList<>();
+            Set<Integer> seenFirstIntegers = new HashSet<>();
+
+            for (String line : lines) {
+                String[] parts = line.split("/", 2);
+                if (parts.length > 1) {
+                    int firstInteger = Integer.parseInt(parts[0]);
+                    if (seenFirstIntegers.add(firstInteger)) { // Add to set if not already present
+                        uniqueLines.add(line); // Keep the line if it's the first occurrence
+                    }
+                }
+            }
+
             // Remove the first integer and its divider from each line
             List<String> transformedLines = new ArrayList<>();
-            for (String line : lines) {
+            for (String line : uniqueLines) {
                 String[] parts = line.split("/", 2);
                 if (parts.length > 1) {
                     transformedLines.add(parts[1]); // Keep everything after the first integer and '/'
@@ -309,15 +329,21 @@ public class CollisionDetector {
 
             // Rewrite the transformed lines back to output.txt
             Files.write(outputFilePath, transformedLines);
-            System.out.println("Sorted and transformed lines written back to " + outputFilePath);
+            System.out.println("Sorted, deduplicated, and transformed lines written back to " + outputFilePath);
 
-         // Delete the entry.txt file
-            Files.deleteIfExists(entryFilePath);
-            System.out.println("entry.txt has been deleted");
-            
-        
+            // Delete the entry.txt file
+            if (Files.deleteIfExists(entryFilePath)) {
+                System.out.println("entry.txt has been deleted");
+            } else {
+                System.out.println("entry.txt does not exist or could not be deleted");
+            }
+
         } catch (IOException e) {
             System.err.println("Error during file operations: " + e.getMessage());
+        } catch (NumberFormatException e) {
+            System.err.println("Error parsing integers: " + e.getMessage());
         }
+        
+       
     }
     }
