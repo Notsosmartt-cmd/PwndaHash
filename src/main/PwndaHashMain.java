@@ -1,6 +1,7 @@
 // Main.java
 package main;
 
+import java.awt.FileDialog;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -112,22 +113,29 @@ public class PwndaHashMain extends JFrame {
     }
 
     private void selectZipFile(JLabel zipFileLabel) {
-        JFileChooser fileChooser = new JFileChooser();
-        int result = fileChooser.showOpenDialog(this);
-        if (result == JFileChooser.APPROVE_OPTION) {
-            File selectedFile = fileChooser.getSelectedFile();
-            zipFileLabel.setText(selectedFile.getAbsolutePath());
+        FileDialog fileDialog = new FileDialog(this, "Select ZIP File", FileDialog.LOAD);
+        fileDialog.setVisible(true);
+    
+        String directory = fileDialog.getDirectory();
+        String file = fileDialog.getFile();
+    
+        if (directory != null && file != null) {
+            zipFileLabel.setText(directory + file);
         }
     }
-
+    
     private void selectInputFile(JLabel inputFileLabel) {
-        JFileChooser fileChooser = new JFileChooser();
-        int result = fileChooser.showOpenDialog(this);
-        if (result == JFileChooser.APPROVE_OPTION) {
-            File selectedFile = fileChooser.getSelectedFile();
-            inputFileLabel.setText(selectedFile.getAbsolutePath());
+        FileDialog fileDialog = new FileDialog(this, "Select Input File", FileDialog.LOAD);
+        fileDialog.setVisible(true);
+    
+        String directory = fileDialog.getDirectory();
+        String file = fileDialog.getFile();
+    
+        if (directory != null && file != null) {
+            inputFileLabel.setText(directory + file);
         }
     }
+    
 
     public void startGame(String manualPassword, String zipFilePath, String inputFilePath) {
        

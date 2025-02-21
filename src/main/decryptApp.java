@@ -2,6 +2,7 @@
 package main;
 
 import decrypt.Decrypter;
+import java.awt.FileDialog;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -78,67 +79,69 @@ public class decryptApp {
             passwordFileButton.setVisible(true);
         });
 
-        // Password file selection ***
-        passwordFileButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JFileChooser fileChooser = new JFileChooser();
-                int result = fileChooser.showOpenDialog(frame);
-                if (result == JFileChooser.APPROVE_OPTION) {
-                    File selectedFile = fileChooser.getSelectedFile();
-                    passwordFilePath[0] = selectedFile.getAbsolutePath();
-                    
-                    //determine if zip file
-                    if (passwordFilePath[0].toLowerCase().endsWith(".zip")) {
-                        try {
-                            // Handle zip file
-                            File tempDir = Files.createTempDirectory("passwordZip").toFile();
-                            java.util.zip.ZipFile zipFile = new java.util.zip.ZipFile(selectedFile);
-                            java.util.Enumeration<? extends java.util.zip.ZipEntry> entries = zipFile.entries();
-                            boolean passwordFileFound = false;
-                            while (entries.hasMoreElements()) {
-                                java.util.zip.ZipEntry entry = entries.nextElement();
-                                if (!entry.isDirectory() && entry.getName().toLowerCase().endsWith(".txt")) {
-                                    File extractedFile = new File(tempDir, entry.getName());
-                                    Files.copy(zipFile.getInputStream(entry), extractedFile.toPath());
-                                    passwordFilePath[0] = extractedFile.getAbsolutePath();
-                                    passwordFileFound = true;
-                                    break;
-                                }
-                            }
-                            zipFile.close();
-                            if (passwordFileFound) {
-                                passwordFileLabel.setText("File (from zip): " + new File(passwordFilePath[0]).getName());
-                            } else {
-                                JOptionPane.showMessageDialog(frame, "No password file found in the zip.", "Error", JOptionPane.ERROR_MESSAGE);
-                                passwordFilePath[0] = null; // Reset if no valid file found
-                            }
-                        } catch (IOException ex) {
-                            JOptionPane.showMessageDialog(frame, "Error reading zip file: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-                            passwordFilePath[0] = null; // Reset in case of error
+       // Password file selection ***
+passwordFileButton.addActionListener(new ActionListener() {
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        FileDialog fileDialog = new FileDialog(frame, "Select Password File", FileDialog.LOAD);
+        fileDialog.setVisible(true);
+        String fileName = fileDialog.getFile();
+        if (fileName != null) {
+            File selectedFile = new File(fileDialog.getDirectory(), fileName);
+            passwordFilePath[0] = selectedFile.getAbsolutePath();
+            
+            // Determine if zip file
+            if (passwordFilePath[0].toLowerCase().endsWith(".zip")) {
+                try {
+                    // Handle zip file
+                    File tempDir = Files.createTempDirectory("passwordZip").toFile();
+                    java.util.zip.ZipFile zipFile = new java.util.zip.ZipFile(selectedFile);
+                    java.util.Enumeration<? extends java.util.zip.ZipEntry> entries = zipFile.entries();
+                    boolean passwordFileFound = false;
+                    while (entries.hasMoreElements()) {
+                        java.util.zip.ZipEntry entry = entries.nextElement();
+                        if (!entry.isDirectory() && entry.getName().toLowerCase().endsWith(".txt")) {
+                            File extractedFile = new File(tempDir, entry.getName());
+                            Files.copy(zipFile.getInputStream(entry), extractedFile.toPath());
+                            passwordFilePath[0] = extractedFile.getAbsolutePath();
+                            passwordFileFound = true;
+                            break;
                         }
-                        // Regular file selected
-                    } else {
-                        passwordFileLabel.setText("File: " + selectedFile.getName());
                     }
+                    zipFile.close();
+                    if (passwordFileFound) {
+                        passwordFileLabel.setText("File (from zip): " + new File(passwordFilePath[0]).getName());
+                    } else {
+                        JOptionPane.showMessageDialog(frame, "No password file found in the zip.", "Error", JOptionPane.ERROR_MESSAGE);
+                        passwordFilePath[0] = null; // Reset if no valid file found
+                    }
+                } catch (IOException ex) {
+                    JOptionPane.showMessageDialog(frame, "Error reading zip file: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                    passwordFilePath[0] = null; // Reset in case of error
                 }
+            } else {
+                // Regular file selected
+                passwordFileLabel.setText("File: " + selectedFile.getName());
             }
-        });
-        
+        }
+    }
+});
 
-        // Input file selection
-        selectFileButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JFileChooser fileChooser = new JFileChooser();
-                int result = fileChooser.showOpenDialog(frame);
-                if (result == JFileChooser.APPROVE_OPTION) {
-                    File selectedFile = fileChooser.getSelectedFile();
-                    inputFilePath[0] = selectedFile.getAbsolutePath();
-                    selectedFileLabel.setText("File: " + selectedFile.getName());
-                }
-            }
-        });
+// Input file selection
+selectFileButton.addActionListener(new ActionListener() {
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        FileDialog fileDialog = new FileDialog(frame, "Select Input File", FileDialog.LOAD);
+        fileDialog.setVisible(true);
+        String fileName = fileDialog.getFile();
+        if (fileName != null) {
+            File selectedFile = new File(fileDialog.getDirectory(), fileName);
+            inputFilePath[0] = selectedFile.getAbsolutePath();
+            selectedFileLabel.setText("File: " + selectedFile.getName());
+        }
+    }
+});
+
 
         // Generate button
         JButton generateButton = new JButton("Process File");
