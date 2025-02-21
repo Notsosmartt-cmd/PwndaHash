@@ -1,17 +1,15 @@
+// Import necessary packages
 package lite;
 
-import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
+import javax.swing.*;
 import main.Launcher;
 import processors.Utf8Utils;
 
 public class liteApp {
-   
 
     public static void main(String[] args) {
         // Create the main frame
@@ -57,11 +55,16 @@ public class liteApp {
         selectFileButton.setBounds(50, 100, 150, 30);
         frame.add(selectFileButton);
 
-        JLabel selectedFileLabel = new JLabel("No input file selected.");
-        selectedFileLabel.setBounds(210, 100, 350, 30);
-        frame.add(selectedFileLabel);
+        JButton selectDirectoryButton = new JButton("Select Input Directory");
+        selectDirectoryButton.setBounds(210, 100, 200, 30);
+        frame.add(selectDirectoryButton);
 
-        final String[] inputFilePath = {null};
+        JLabel selectedFileOrDirectoryLabel = new JLabel("No file or directory selected.");
+        selectedFileOrDirectoryLabel.setBounds(50, 140, 500, 30);
+        frame.add(selectedFileOrDirectoryLabel);
+
+        final String[] inputPath = {null};
+        final boolean[] isDirectory = {false};
         final String[] passwordFilePath = {null};
 
         // Radio button listeners
@@ -76,96 +79,136 @@ public class liteApp {
             passwordFileButton.setVisible(true);
         });
 
-        // Password file selection
-        passwordFileButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JFileChooser fileChooser = new JFileChooser();
-                int result = fileChooser.showOpenDialog(frame);
-                if (result == JFileChooser.APPROVE_OPTION) {
-                    File selectedFile = fileChooser.getSelectedFile();
-                    passwordFilePath[0] = selectedFile.getAbsolutePath();
-                    passwordFileLabel.setText("File: " + selectedFile.getName());
-                }
+        // Password file selection ***
+        passwordFileButton.addActionListener(e -> {
+        	 JFileChooser fileChooser = new JFileChooser();
+             int result = fileChooser.showOpenDialog(frame);
+             if (result == JFileChooser.APPROVE_OPTION) {
+                 File selectedFile = fileChooser.getSelectedFile();
+                 passwordFilePath[0] = selectedFile.getAbsolutePath();
+                 
+                 //determine if zip file
+                 if (passwordFilePath[0].toLowerCase().endsWith(".zip")) {
+                     try {
+                         // Handle zip file
+                         File tempDir = Files.createTempDirectory("passwordZip").toFile();
+                         java.util.zip.ZipFile zipFile = new java.util.zip.ZipFile(selectedFile);
+                         java.util.Enumeration<? extends java.util.zip.ZipEntry> entries = zipFile.entries();
+                         boolean passwordFileFound = false;
+                         while (entries.hasMoreElements()) {
+                             java.util.zip.ZipEntry entry = entries.nextElement();
+                             if (!entry.isDirectory() && entry.getName().toLowerCase().endsWith(".txt")) {
+                                 File extractedFile = new File(tempDir, entry.getName());
+                                 Files.copy(zipFile.getInputStream(entry), extractedFile.toPath());
+                                 passwordFilePath[0] = extractedFile.getAbsolutePath();
+                                 passwordFileFound = true;
+                                 break;
+                             }
+                         }
+                         zipFile.close();
+                         if (passwordFileFound) {
+                             passwordFileLabel.setText("File (from zip): " + new File(passwordFilePath[0]).getName());
+                         } else {
+                             JOptionPane.showMessageDialog(frame, "No password file found in the zip.", "Error", JOptionPane.ERROR_MESSAGE);
+                             passwordFilePath[0] = null; // Reset if no valid file found
+                         }
+                     } catch (IOException ex) {
+                         JOptionPane.showMessageDialog(frame, "Error reading zip file: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                         passwordFilePath[0] = null; // Reset in case of error
+                     }
+                     // Regular file selected
+                 } else {
+                     passwordFileLabel.setText("File: " + selectedFile.getName());
+                 }
+             } });
+
+        
+        
+        // Input file selection
+        selectFileButton.addActionListener(e -> {
+            JFileChooser fileChooser = new JFileChooser();
+            int result = fileChooser.showOpenDialog(frame);
+            if (result == JFileChooser.APPROVE_OPTION) {
+                File selectedFile = fileChooser.getSelectedFile();
+                inputPath[0] = selectedFile.getAbsolutePath();
+                isDirectory[0] = false;
+                selectedFileOrDirectoryLabel.setText("File: " + selectedFile.getName());
             }
         });
 
-        // Input file selection
-        selectFileButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JFileChooser fileChooser = new JFileChooser();
-                int result = fileChooser.showOpenDialog(frame);
-                if (result == JFileChooser.APPROVE_OPTION) {
-                    File selectedFile = fileChooser.getSelectedFile();
-                    inputFilePath[0] = selectedFile.getAbsolutePath();
-                    selectedFileLabel.setText("File: " + selectedFile.getName());
-                }
+        // Directory selection
+        selectDirectoryButton.addActionListener(e -> {
+            JFileChooser directoryChooser = new JFileChooser();
+            directoryChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            int result = directoryChooser.showOpenDialog(frame);
+            if (result == JFileChooser.APPROVE_OPTION) {
+                File selectedDirectory = directoryChooser.getSelectedFile();
+                inputPath[0] = selectedDirectory.getAbsolutePath();
+                isDirectory[0] = true;
+                selectedFileOrDirectoryLabel.setText("Directory: " + selectedDirectory.getName());
             }
         });
 
         // Generate button
-        JButton generateButton = new JButton("Process File");
-        generateButton.setBounds(100, 140, 200, 30);
+        JButton generateButton = new JButton("Process");
+        generateButton.setBounds(100, 180, 200, 30);
         frame.add(generateButton);
 
-        // Result label
-        JLabel resultLabel = new JLabel("Click the button after selecting files/password");
-        resultLabel.setBounds(50, 180, 500, 30);
-        frame.add(resultLabel);
+        generateButton.addActionListener(e -> {
+            try {
+                // Validate input path
+                if (inputPath[0] == null) {
+                    JOptionPane.showMessageDialog(frame, "Please select an input file or directory.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
 
-        generateButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    // Validate input file
-                    if (inputFilePath[0] == null) {
-                        JOptionPane.showMessageDialog(frame, "Please select an input file.", "Error", JOptionPane.ERROR_MESSAGE);
+                // Get password
+                String password = "";
+                if (manualPasswordRadio.isSelected()) {
+                    password = passwordField.getText();
+                    if (password.isEmpty()) {
+                        JOptionPane.showMessageDialog(frame, "Please enter a password.", "Error", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
-
-                    // Get password
-                    String password = "";
-                    if (manualPasswordRadio.isSelected()) {
-                        password = passwordField.getText();
-                        if (password.isEmpty()) {
-                            JOptionPane.showMessageDialog(frame, "Please enter a password.", "Error", JOptionPane.ERROR_MESSAGE);
-                            return;
-                        }
-                    } else {
-                        if (passwordFilePath[0] == null) {
-                            JOptionPane.showMessageDialog(frame, "Please select a password file.", "Error", JOptionPane.ERROR_MESSAGE);
-                            return;
-                        }
-                        password = new String(Files.readAllBytes(new File(passwordFilePath[0]).toPath()));
-                        if (password.isEmpty()) {
-                            JOptionPane.showMessageDialog(frame, "Password file is empty.", "Error", JOptionPane.ERROR_MESSAGE);
-                            return;
-                        }
+                } else {
+                    if (passwordFilePath[0] == null) {
+                        JOptionPane.showMessageDialog(frame, "Please select a password file.", "Error", JOptionPane.ERROR_MESSAGE);
+                        return;
                     }
-
-                    // Process files
-                    File inputFile = new File(inputFilePath[0]);
-                    String inputFileName = inputFile.getName();
-                    String outputFileName = "(Pwnda)" + inputFileName ;
-                    File outputFile = new File(inputFile.getParent(), outputFileName);
-                    
-                    List<Character> utf8Values = Utf8Utils.convertToCharacterArrayList(password);
-                    System.out.println(utf8Values);
-                    FileProcessor fileProcessor = new FileProcessor(utf8Values);
-
-
-                 
-                    
-                    fileProcessor.processFile(inputFilePath[0], outputFile.getAbsolutePath());
-                    JOptionPane.showMessageDialog(frame, 
-                        "Processing complete!\nOutput saved to:\n" + outputFile.getAbsolutePath());
-
-                } catch (IOException ex) {
-                    JOptionPane.showMessageDialog(frame, "Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                    password = new String(Files.readAllBytes(new File(passwordFilePath[0]).toPath()));
+                    if (password.isEmpty()) {
+                        JOptionPane.showMessageDialog(frame, "Password file is empty.", "Error", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
                 }
+
+                List<Character> utf8Values = Utf8Utils.convertToCharacterArrayList(password);
+                FileProcessor fileProcessor = new FileProcessor(utf8Values);
+
+                // Process input
+                if (isDirectory[0]) {
+                	//Feeds and Processes each file in a directory if directory is selected
+                    File dir = new File(inputPath[0]);
+                    File[] files = dir.listFiles((d, name) -> name.endsWith(".txt")); // Adjust filter as needed
+                    if (files != null) {
+                        for (File file : files) {
+                            File outputFile = new File(dir, "(Pwnda)" + file.getName());
+                            fileProcessor.processFile(file.getAbsolutePath(), outputFile.getAbsolutePath());
+                        }
+                        JOptionPane.showMessageDialog(frame, "Processing complete for all files in directory!");
+                    }
+                } else {
+                	//Processes a singular file if selected
+                    File inputFile = new File(inputPath[0]);
+                    File outputFile = new File(inputFile.getParent(), "(Pwnda)" + inputFile.getName());
+                    fileProcessor.processFile(inputFile.getAbsolutePath(), outputFile.getAbsolutePath());
+                    JOptionPane.showMessageDialog(frame, "Processing complete for file!");
+                }
+            } catch (IOException ex) {
+                JOptionPane.showMessageDialog(frame, "Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
+
         // Home Button
         JButton homeButton = new JButton("Home");
         homeButton.setBounds(450, 400, 100, 30);
@@ -175,7 +218,6 @@ public class liteApp {
             frame.dispose(); // Close the current window
             Launcher.main(null); // Go back to the main launcher
         });
-
 
         frame.setVisible(true);
     }

@@ -1,17 +1,14 @@
 // MainApp.java
 package main;
 
-import javax.swing.*;
-
 import decrypt.Decrypter;
-
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
-
+import javax.swing.*;
 import processors.Utf8Utils;
 
 
@@ -66,8 +63,8 @@ public class decryptApp {
         selectedFileLabel.setBounds(210, 100, 350, 30);
         frame.add(selectedFileLabel);
 
-        final String[] inputFilePath = {null};
-        final String[] passwordFilePath = {null};
+         String[] inputFilePath = {null};
+         String[] passwordFilePath = {null};
 
         // Radio button listeners
         manualPasswordRadio.addActionListener(e -> {
@@ -81,7 +78,7 @@ public class decryptApp {
             passwordFileButton.setVisible(true);
         });
 
-        // Password file selection
+        // Password file selection ***
         passwordFileButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -90,10 +87,44 @@ public class decryptApp {
                 if (result == JFileChooser.APPROVE_OPTION) {
                     File selectedFile = fileChooser.getSelectedFile();
                     passwordFilePath[0] = selectedFile.getAbsolutePath();
-                    passwordFileLabel.setText("File: " + selectedFile.getName());
+                    
+                    //determine if zip file
+                    if (passwordFilePath[0].toLowerCase().endsWith(".zip")) {
+                        try {
+                            // Handle zip file
+                            File tempDir = Files.createTempDirectory("passwordZip").toFile();
+                            java.util.zip.ZipFile zipFile = new java.util.zip.ZipFile(selectedFile);
+                            java.util.Enumeration<? extends java.util.zip.ZipEntry> entries = zipFile.entries();
+                            boolean passwordFileFound = false;
+                            while (entries.hasMoreElements()) {
+                                java.util.zip.ZipEntry entry = entries.nextElement();
+                                if (!entry.isDirectory() && entry.getName().toLowerCase().endsWith(".txt")) {
+                                    File extractedFile = new File(tempDir, entry.getName());
+                                    Files.copy(zipFile.getInputStream(entry), extractedFile.toPath());
+                                    passwordFilePath[0] = extractedFile.getAbsolutePath();
+                                    passwordFileFound = true;
+                                    break;
+                                }
+                            }
+                            zipFile.close();
+                            if (passwordFileFound) {
+                                passwordFileLabel.setText("File (from zip): " + new File(passwordFilePath[0]).getName());
+                            } else {
+                                JOptionPane.showMessageDialog(frame, "No password file found in the zip.", "Error", JOptionPane.ERROR_MESSAGE);
+                                passwordFilePath[0] = null; // Reset if no valid file found
+                            }
+                        } catch (IOException ex) {
+                            JOptionPane.showMessageDialog(frame, "Error reading zip file: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                            passwordFilePath[0] = null; // Reset in case of error
+                        }
+                        // Regular file selected
+                    } else {
+                        passwordFileLabel.setText("File: " + selectedFile.getName());
+                    }
                 }
             }
         });
+        
 
         // Input file selection
         selectFileButton.addActionListener(new ActionListener() {

@@ -28,7 +28,7 @@ public class Launcher extends JFrame {
         JButton pwndaHashButton = new JButton("PwndaHash");
         JButton pwndaHashLiteButton = new JButton("PwndaHashLite");
         JButton pwndaHashDecrypt = new JButton("Decrypt");
-        JButton pwndaPwssordGeneratorASCII = new JButton("pwndaPwssordGeneratorASCII");
+        JButton pwndaPwsswordGeneratorASCII = new JButton("pwndaPwsswordGeneratorASCII");
 
         pwndaHashButton.addActionListener(e -> {
             // Launch PwndaHash
@@ -52,7 +52,7 @@ public class Launcher extends JFrame {
             dispose(); // Close the launcher window
         });
 
-        pwndaPwssordGeneratorASCII.addActionListener(e -> {
+        pwndaPwsswordGeneratorASCII.addActionListener(e -> {
             // Launch PwndaHashLite
             SwingUtilities.invokeLater(() -> {
             	PasswordGeneratorLauncher.main(null); // Call the static main method of MainApp
@@ -63,7 +63,7 @@ public class Launcher extends JFrame {
         buttonPanel.add(pwndaHashButton);
         buttonPanel.add(pwndaHashLiteButton);
         buttonPanel.add(pwndaHashDecrypt);
-        buttonPanel.add(pwndaPwssordGeneratorASCII);
+        buttonPanel.add(pwndaPwsswordGeneratorASCII);
         add(buttonPanel, BorderLayout.CENTER);
 
         setVisible(true);

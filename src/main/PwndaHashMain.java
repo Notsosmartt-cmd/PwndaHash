@@ -1,16 +1,12 @@
 // Main.java
 package main;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
-import main.Launcher;
+import javax.swing.*;
 
 public class PwndaHashMain extends JFrame {
     private final int WIDTH = 700;
@@ -142,17 +138,39 @@ public class PwndaHashMain extends JFrame {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
-
     private String validateAndGetPassword(String manualPassword, String zipFilePath) throws IOException {
         if (manualPassword != null && !manualPassword.isEmpty()) {
             return manualPassword;
         }
         
         if (zipFilePath == null || zipFilePath.equals("No ZIP file selected")) {
-            throw new IllegalArgumentException("Please select a ZIP file containing the password!");
+            throw new IllegalArgumentException("Please select a valid file for the password!");
         }
-        
-        return loadPasswordFromZip(zipFilePath);
+    
+        File file = new File(zipFilePath);
+        if (!file.exists()) {
+            throw new IOException("File not found: " + zipFilePath);
+        }
+    
+        if (isZipFile(file)) {
+            return loadPasswordFromZip(zipFilePath);
+        } else {
+            return loadPasswordFromFile(file);
+        }
+    }
+    
+    private boolean isZipFile(File file) {
+        try (java.util.zip.ZipFile zipFile = new java.util.zip.ZipFile(file)) {
+            return true; // If no exception is thrown, it's a valid ZIP file
+        } catch (IOException e) {
+            return false; // Not a valid ZIP file
+        }
+    }
+    
+    private String loadPasswordFromFile(File file) throws IOException {
+        try (BufferedReader reader = Files.newBufferedReader(file.toPath())) {
+            return reader.readLine(); // Return the first line as the password
+        }
     }
 
     private String loadPasswordFromZip(String zipFilePath) throws IOException {
