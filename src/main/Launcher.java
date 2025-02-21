@@ -4,16 +4,11 @@ package main;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.Font;
-
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
-
-//jay waz here
-
-//import main.Main; 
 import lite.liteApp;
 
 public class Launcher extends JFrame {
@@ -33,10 +28,11 @@ public class Launcher extends JFrame {
         JButton pwndaHashButton = new JButton("PwndaHash");
         JButton pwndaHashLiteButton = new JButton("PwndaHashLite");
         JButton pwndaHashDecrypt = new JButton("Decrypt");
+        JButton pwndaPwssordGeneratorASCII = new JButton("pwndaPwssordGeneratorASCII");
 
         pwndaHashButton.addActionListener(e -> {
             // Launch PwndaHash
-            SwingUtilities.invokeLater(Main::new);
+            SwingUtilities.invokeLater(PwndaHashMain::new);
             dispose(); // Close the launcher window
         });
 
@@ -56,9 +52,18 @@ public class Launcher extends JFrame {
             dispose(); // Close the launcher window
         });
 
+        pwndaPwssordGeneratorASCII.addActionListener(e -> {
+            // Launch PwndaHashLite
+            SwingUtilities.invokeLater(() -> {
+            	PasswordGeneratorLauncher.main(null); // Call the static main method of MainApp
+            });
+            dispose(); // Close the launcher window
+        });
+
         buttonPanel.add(pwndaHashButton);
         buttonPanel.add(pwndaHashLiteButton);
         buttonPanel.add(pwndaHashDecrypt);
+        buttonPanel.add(pwndaPwssordGeneratorASCII);
         add(buttonPanel, BorderLayout.CENTER);
 
         setVisible(true);

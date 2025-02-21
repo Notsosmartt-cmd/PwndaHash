@@ -52,7 +52,7 @@ public class PasswordGeneratorASCII {
         return new String(characters);
     }
 
-    private static void zipPasswordToFile(String zipFilename, String textFilename, String password) 
+    public static void zipPasswordToFile(String zipFilename, String textFilename, String password) 
             throws IOException {
         try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zipFilename))) {
             zos.putNextEntry(new ZipEntry(textFilename));

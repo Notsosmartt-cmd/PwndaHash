@@ -12,12 +12,12 @@ import java.io.InputStreamReader;
 import java.nio.file.Files;
 import main.Launcher;
 
-public class Main extends JFrame {
+public class PwndaHashMain extends JFrame {
     private final int WIDTH = 700;
     private final int HEIGHT = 600;
     private final String DEFAULT_INPUT_FILE = "No input file selected.";
 
-    public Main() {
+    public PwndaHashMain() {
         initializeUI();
     }
     
@@ -185,6 +185,6 @@ public class Main extends JFrame {
     }
 
     public static void main(String[] args) {
-        new Main();
+        new PwndaHashMain();
     }
 }
