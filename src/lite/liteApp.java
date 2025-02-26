@@ -184,7 +184,7 @@ public class liteApp {
                 }
 
                 List<Character> utf8Values = Utf8Utils.convertToCharacterArrayList(password);
-                FileProcessor fileProcessor = new FileProcessor(utf8Values);
+                FileProcessor fileProcessor = new FileProcessor(utf8Values); //feeds file processor class utf8 password values
 
                 // Process input
                 if (isDirectory[0]) {
@@ -194,7 +194,7 @@ public class liteApp {
                     if (files != null) {
                         for (File file : files) {
                             File outputFile = new File(dir, "(Pwnda)" + file.getName());
-                            fileProcessor.processFile(file.getAbsolutePath(), outputFile.getAbsolutePath());
+                            fileProcessor.processFile(file.getAbsolutePath(), outputFile.getAbsolutePath()); //gives each file over to file processor
                         }
                         JOptionPane.showMessageDialog(frame, "Processing complete for all files in directory!");
                     }
@@ -202,7 +202,7 @@ public class liteApp {
                 	//Processes a singular file if selected
                     File inputFile = new File(inputPath[0]);
                     File outputFile = new File(inputFile.getParent(), "(Pwnda)" + inputFile.getName());
-                    fileProcessor.processFile(inputFile.getAbsolutePath(), outputFile.getAbsolutePath());
+                    fileProcessor.processFile(inputFile.getAbsolutePath(), outputFile.getAbsolutePath()); //gives file over to file processor
                     JOptionPane.showMessageDialog(frame, "Processing complete for file!");
                 }
             } catch (IOException ex) {
