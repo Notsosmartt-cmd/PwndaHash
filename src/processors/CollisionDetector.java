@@ -249,7 +249,7 @@ public class CollisionDetector {
         
     	synchronized (newest) {
             if (!newest.isEmpty()) {
-            
+            //maybe use linked list
             	// Get the directory of the input file
                 Path inputFilePathObj = Paths.get(inputFilePath);
                 Path inputFileDir = inputFilePathObj.getParent();
@@ -306,15 +306,17 @@ public class CollisionDetector {
             */
             // Remove lines with duplicate first integers
             List<String> uniqueLines = new ArrayList<>();
-            Set<Integer> seenFirstIntegers = new HashSet<>();
+            Set<Integer> seenFirstIntegers = new HashSet<>(); //We use the logic of the hashset to know if we should add it to uniqueLines array
 
             for (String line : lines) {
                 String[] parts = line.split("/", 2);
                 if (parts.length > 1) {
-                    int firstInteger = Integer.parseInt(parts[0]);
+                    int firstInteger = Integer.parseInt(parts[0]); //Isolates the first integer in the line
+                    
                     if (seenFirstIntegers.add(firstInteger)) { // Add to set if not already present
                         uniqueLines.add(line); // Keep the line if it's the first occurrence
                     }
+                    
                 }
             }
 
