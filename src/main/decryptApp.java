@@ -194,10 +194,11 @@ selectFileButton.addActionListener(new ActionListener() {
                     //password is being directly imported to integer and doesn't consider surrogate. Import characters, then use UTF-8 utils to change them to int
                     
                  //   List<Character> utfChar = Utf8Utils.convertToUtf8ArrayList(password);
-                    
-                    List<Character> utf8Values = Utf8Utils.convertToCharacterArrayList(password);
+                    //  Turns password into numbers
+                    List<Integer> utf8Values = Utf8Utils.convertToCodePointArrayList(password);
                     System.out.println(utf8Values);
                     
+                    //Decyrpts files 
                     Decrypter fileProcessor = new Decrypter(utf8Values);
 
                  

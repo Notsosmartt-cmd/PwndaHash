@@ -4,13 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Utf8Utils {
-    public static List<Character> convertToCharacterArrayList(String password) {
-        List<Character> charList = new ArrayList<>();
+	public static List<Integer> convertToCodePointArrayList(String input) {
+	    List<Integer> utf8Values = new ArrayList<>();
+	    
+	    // Directly collect code points into the ArrayList
+        input.codePoints().forEach(utf8Values::add);  //turns characters like 'A' into raw integer for their code point '65'
         
-        for (char ch : password.toCharArray()) {
-            charList.add(ch);
-        }
-
-        return charList;
-    }
+        return utf8Values;
+	}
 }

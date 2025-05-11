@@ -183,7 +183,10 @@ public class liteApp {
                     }
                 }
 
-                List<Character> utf8Values = Utf8Utils.convertToCharacterArrayList(password);
+                //  Turns password into numbers
+                List<Integer> utf8Values = Utf8Utils.convertToCodePointArrayList(password);
+                
+                //Encrypts files 
                 FileProcessor fileProcessor = new FileProcessor(utf8Values); //feeds file processor class utf8 password values
 
                 // Process input
