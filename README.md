@@ -70,17 +70,3 @@ For PwndaHash main dupliucate characters are sometimes made when using long gene
 ----------------------------------------------------------------------------------------------------
 Possible Handshake:
 
-Public Key: Encrypted File
-
-Private Key: Password
-
-
-PC1 sends encrypted file using private key
-
-PC1 requests a file back
-
-PC2 decrypts the file using private key then re-encrypts it with the same key and sends it back
-
-(new encrypted file is different but since they should both have the same private key the decrypted version will be the same)
-
-PC1 decrypts the file and checks if decrypted file version matches they're own
