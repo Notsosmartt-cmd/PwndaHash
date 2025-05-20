@@ -5,11 +5,18 @@ Developers: Jaylen Hill & Dominick Rodriguez
 
 Welcome to PwndaHash!
 
+PwndaHash:
+Original
+(Slower, but visual representation of encryption or obfuscation proccess)
+
+PwndaHash Lite:
+Faster & Better Storage
+
+
 Purpose:
 
 Proof-of-concept file encryption based off gambling game "Plinko" or Pachinko board game
-
-Originally designed as a way to encrypt files to store crypto wallet mnemonic phrases with a singular memorable password without having to store a long key. 
+Originally designed as a way to encrypt files to store crypto wallet mnemonic phrases with a password, long or memorable, without having to store a long key or use a pbkdf2 password manager. 
 
 
 Mechanics:
@@ -27,7 +34,9 @@ Weaknesses:
 
 Brute forcing. If password is too weak or computer is strong Brute forcing is always possible (However unlikely)
 
-Storage. PwndaHash tends to expand file sizes due to the way the encrypted values are stored. PwndaHash roughly doubles the original file size; however, to compensate the program can store the encrypted file in a zip folder and read from a zip folder to decrypt any PwndaHash encrypted files. This is not a major concern due to computer storage growing in size over time, and file compression being able to compress files up to 90% less than the original size
+Storage. PwndaHash tends to expand file sizes due to the way the encrypted values are stored. PwndaHash roughly doubles the original file size; however, to compensate the program can store the encrypted file in a zip folder and read from a zip folder to decrypt any PwndaHash encrypted files. This is not a major concern due to computer storage growing in size over time, and file compression being able to compress files up to 90% less than the original size. PwndaHash Lite fixes some of this issue.
+
+Single Threaded. Due to the dynamic stateful variables in PwndaHash Lite, it prevents pattern detection but also prevents parallelization. 
 
 
 Strengths:
@@ -36,7 +45,7 @@ Irreversible. Encrypted values are hard to determine due to addition, without pr
 
 Unrepeatable. Each new encryption output is different due to normal distribution even if the password is the same, so the same file will never have the same output even if they used the same password
 
-Large Possibilities. Using utf-8 for passwords and as encrypted values creates really large possible password combinations, also brute forcing an encrypted character can create a infinite number of outputs with no certainty of the original message. The message "The red fox" can be encrypted and the brute forced output could be "wUe 3<w a&(" or "ran ice tea". 
+Large Entropy. Using utf-8 for passwords and as encrypted values creates really large possible password combinations, also brute forcing an encrypted character can create a infinite number of outputs with no certainty of the original message. The message "The red fox" can be encrypted and the brute forced output could be "wUe 3<w a&(" or "ran ice tea". 
 
 
 Optimization:
