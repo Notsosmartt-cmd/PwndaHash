@@ -12,10 +12,10 @@ import processors.Utf8Utils;
 
 
 public class PwndaHashDecrypter {
-    private final List<Character> utf8Values;
+    private final List<Integer> utf8Values;
 
-    public PwndaHashDecrypter(List<Character> utf8Values) {
-        this.utf8Values = utf8Values;
+    public PwndaHashDecrypter(List<Integer> utf8Values2) {
+        this.utf8Values = utf8Values2;
     }
 
     public void processFile(String inputFile, String outputFile) {

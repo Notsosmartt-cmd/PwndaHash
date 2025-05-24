@@ -1,7 +1,6 @@
 // MainApp.java
-package main;
+package decrypt;
 
-import decrypt.Decrypter;
 import java.awt.FileDialog;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -10,10 +9,12 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
 import javax.swing.*;
+
+import main.Launcher;
 import processors.Utf8Utils;
 
 
-public class decryptApp {
+public class PwndaHashDecryptApp {
    
     public static void main(String[] args) {
         // Create the main frame
@@ -199,7 +200,7 @@ selectFileButton.addActionListener(new ActionListener() {
                     System.out.println(utf8Values);
                     
                     //Decyrpts files 
-                    Decrypter fileProcessor = new Decrypter(utf8Values);
+                    PwndaHashDecrypter fileProcessor = new PwndaHashDecrypter(utf8Values);
 
                  
                     

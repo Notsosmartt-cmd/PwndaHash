@@ -9,6 +9,9 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
+
+import decrypt.PwndaHashDecryptApp;
+import decrypt.DecryptAppLite;
 import lite.liteApp;
 
 public class Launcher extends JFrame {
@@ -27,7 +30,10 @@ public class Launcher extends JFrame {
 
         JButton pwndaHashButton = new JButton("PwndaHash");
         JButton pwndaHashLiteButton = new JButton("PwndaHashLite");
-        JButton pwndaHashDecrypt = new JButton("Decrypt");
+        
+        JButton pwndaHashDecrypt = new JButton("PwndaHash Decrypt");
+        JButton LiteDecrypt = new JButton("Lite Decrypt");
+        
         JButton pwndaPwsswordGeneratorASCII = new JButton("pwndaPwsswordGeneratorASCII");
 
         pwndaHashButton.addActionListener(e -> {
@@ -47,7 +53,14 @@ public class Launcher extends JFrame {
         pwndaHashDecrypt.addActionListener(e -> {
             // Launch PwndaHashLite
             SwingUtilities.invokeLater(() -> {
-            	decryptApp.main(null); // Call the static main method of MainApp
+            	PwndaHashDecryptApp.main(null); // Call the static main method of MainApp
+            });
+            dispose(); // Close the launcher window
+        });
+        LiteDecrypt.addActionListener(e -> {
+            // Launch PwndaHashLite
+            SwingUtilities.invokeLater(() -> {
+            	DecryptAppLite.main(null); // Call the static main method of MainApp
             });
             dispose(); // Close the launcher window
         });
@@ -63,6 +76,7 @@ public class Launcher extends JFrame {
         buttonPanel.add(pwndaHashButton);
         buttonPanel.add(pwndaHashLiteButton);
         buttonPanel.add(pwndaHashDecrypt);
+        buttonPanel.add(LiteDecrypt);
         buttonPanel.add(pwndaPwsswordGeneratorASCII);
         add(buttonPanel, BorderLayout.CENTER);
 
