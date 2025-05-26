@@ -1,98 +1,111 @@
-// Decrypter.java
+// FileProcessor.java
 package decrypt;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.security.SecureRandom;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
-import java.util.HexFormat;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.HashSet;
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.PBEKeySpec;
+
+import processors.Utf8Utils;
+
 
 public class DecrypterLite {
     private final List<Integer> utf8Values;
-    private static final int SALT_LENGTH = 16;
-    private static final int ITERATIONS = 10000;
 
     public DecrypterLite(List<Integer> utf8Values) {
         this.utf8Values = utf8Values;
     }
 
     public void processFile(String inputFile, String outputFile) {
-        try (BufferedReader reader = Files.newBufferedReader(Paths.get(inputFile), StandardCharsets.UTF_8);
-             BufferedWriter writer = Files.newBufferedWriter(Paths.get(outputFile), StandardCharsets.UTF_8)) {
-            
-            // Read salt from header
-            char[] saltChars = new char[SALT_LENGTH * 2]; // Hex characters
-            reader.read(saltChars, 0, saltChars.length);
-            byte[] salt = HexFormat.of().parseHex(new String(saltChars));
+    	
+    	//Sum of all password characters
+    	final long bigSum = utf8Values.stream().mapToInt(Integer::intValue).sum(); //streams can be used in parrellelization
+    	long adjustedSum = bigSum; // Mirror encryption's adjustedSum
+    	
+    	Set<Integer> usedValues = new HashSet<>(); // Track used indexes like encryption
+    	
+        try (BufferedReader reader =Files.newBufferedReader(Paths.get(inputFile), StandardCharsets.UTF_8);
+        	BufferedWriter writer = Files.newBufferedWriter(Paths.get(outputFile), StandardCharsets.UTF_8)) {
 
-            // Derive seed using password and salt
-            char[] passwordChars = utf8Values.stream()
-                .map(c -> (char) c.intValue())
-                .collect(StringBuilder::new, StringBuilder::append, StringBuilder::append)
-                .toString().toCharArray();
-            
-            PBEKeySpec spec = new PBEKeySpec(passwordChars, salt, ITERATIONS, 256);
-            SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
-            byte[] derivedSeed = skf.generateSecret(spec).getEncoded();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                line = line.trim(); // Remove extra spaces
 
-            // Initialize PRNG with derived seed
-            SecureRandom prng = SecureRandom.getInstance("SHA1PRNG");
-            prng.setSeed(derivedSeed);
-
-            // Initialize decryption state
-            long bigSum = utf8Values.stream().mapToInt(Integer::intValue).sum();
-            long adjustedSum = bigSum;
-            Set<Integer> usedValues = new HashSet<>();
-            int codePoint;
-
-            // Process continuous UTF-8 stream
-            while ((codePoint = reader.read()) != -1) {
-                if (adjustedSum <= 0) {
-                    adjustedSum = bigSum;
-                    usedValues.clear();
+                // Skip empty lines
+                if (line.isEmpty()) {
+                    continue;
                 }
 
-                // Generate same Gaussian index as encryption
-                int passwordIndex = (int) Math.abs(prng.nextGaussian() * (utf8Values.size() / 2.0));
-                passwordIndex = Math.min(passwordIndex, utf8Values.size() - 1);
+                // Split the line into two parts
+                String[] parts = line.split("/");
+                if (parts.length == 2) {
+                    try {
+                        //part 1
+                    	int index = Integer.parseInt(parts[0]);
+                        
+                        // Get full code point (should work for surrogate pairs) part 2
+                        int secondCharValue = parts[1].codePointAt(0);
+
+                        // Reset logic (MUST mirror encryption)
+                        if (adjustedSum <= 0) {
+                            adjustedSum = bigSum;
+                            usedValues.clear();
+                        }
+                        
+                        // Validate index
+                        if (index < 0 || index >= utf8Values.size()) {
+                            writer.write("Wrong Password.\n");
+                            continue;
+                        }
                 
-                if (passwordIndex < 0 || passwordIndex >= utf8Values.size()) {
-                    throw new IOException("Invalid password index - likely wrong password");
-                }
-
-                int passwordCharValue = utf8Values.get(passwordIndex);
+                        int passwordUTF = utf8Values.get(index);
                 
-                // Mirror encryption's sum adjustment
-                if (usedValues.add(passwordCharValue)) {
-                    adjustedSum -= passwordCharValue;
-                }
-
-                // Reverse encryption math
-                long rawDecrypted = (long) codePoint - passwordCharValue - adjustedSum;
-                int decryptedValue = (int) ((rawDecrypted % 0x110000L + 0x110000L) % 0x110000L);
-
-                // Validate and write character
-                if (Character.isValidCodePoint(decryptedValue)) {
-                    writer.write(Character.toChars(decryptedValue));
+                     // Update adjustedSum during decryption (MIRROR encryption)
+                        if (usedValues.add(passwordUTF)) { // Track index, not value
+                            adjustedSum -= passwordUTF;
+                        }
+                        
+                        long rawDecrypted = (long)secondCharValue - (long)passwordUTF - adjustedSum;
+                        
+                     // Apply reverse wrapping using the same modulus
+                        long decryptedValue = (rawDecrypted % 0x110000L + 0x110000L) % 0x110000L; 
+                        int plainCharValue = (int) decryptedValue;
+                        
+                
+                   
+                        
+                        // Validate and convert to proper UTF-8 character 
+                        if (Character.isValidCodePoint(plainCharValue)) {
+                            // Convert code point to char array (handles surrogate pairs if needed)
+                            char[] chars = Character.toChars(plainCharValue);
+                         // Write as UTF-8
+                            writer.write(new String(chars));
+                        } else {
+                            // Fallback for invalid code points '\uFFFD' is a replacement character
+                            writer.write('\uFFFD');
+                        }
+                        
+                        
+                        
+                    } catch (NumberFormatException e) {
+                        writer.write("Invalid index format in line: " + line + "\n");
+                    }
                 } else {
-                    writer.write('\uFFFD');
+                    writer.write("Invalid line format: " + line + "\n");
                 }
             }
-
-            System.out.println("Successfully decrypted file: " + outputFile);
-
-        } catch (IOException | NoSuchAlgorithmException | InvalidKeySpecException e) {
-            System.err.println("Decryption error: " + e.getMessage());
-            // Consider deleting partially decrypted file here for security
+        } catch (IOException e) {
+            System.out.println("An error occurred: " + e.getMessage());
         }
+
+        System.out.println("Output file has been written: " + outputFile);
+        System.out.println("bigSum: " + bigSum);
     }
 }
-

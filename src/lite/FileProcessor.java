@@ -1,128 +1,91 @@
-// FileProcessor.java (Revised)
+// FileProcessor.java
 package lite;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.security.spec.InvalidKeySpecException;
+import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.HexFormat;
 import java.util.List;
 import java.util.Set;
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.PBEKeySpec;
 
 public class FileProcessor {
-    // Stores UTF-8 code points of password characters
     private final List<Integer> utf8Values;
-    
-    // Cryptographic parameters
-    private static final int SALT_LENGTH = 16;  // 128-bit salt for PBKDF2
-    private static final int ITERATIONS = 10000; // Iteration count for key stretching
 
     public FileProcessor(List<Integer> utf8Values) {
         this.utf8Values = utf8Values;
     }
 
     public void processFile(String inputFile, String outputFile) {
-        long startTime = System.currentTimeMillis(); // Start timer
-        
-        try {
-            // ========== SALT GENERATION ========== //
-            // Generate cryptographically secure random salt
-            byte[] salt = new byte[SALT_LENGTH];
-            SecureRandom secureRandom = SecureRandom.getInstanceStrong();
-            secureRandom.nextBytes(salt);
+    	
+    	//Sum of all password characters
+    	final long bigSum = utf8Values.stream().mapToInt(Integer::intValue).sum(); //streams can be used in parrellelization
+    	//consider wrapping because big sum
+    	 System.out.println("bigSum: " + bigSum);
+    	 
+    	long adjustedSum = bigSum;
 
-            // ========== KEY DERIVATION ========== //
-            // Convert password from UTF-8 code points to char array
-            char[] passwordChars = utf8Values.stream()
-                .map(c -> (char) c.intValue())
-                .collect(StringBuilder::new, StringBuilder::append, StringBuilder::append)
-                .toString().toCharArray();
+    	Set<Integer> usedValues = new HashSet<>();
+    	
+    	//Proccess each plain Text character in file
+    	    try (BufferedReader reader = Files.newBufferedReader(Paths.get(inputFile),StandardCharsets.UTF_8);
+    	    	BufferedWriter writer = Files.newBufferedWriter(Paths.get(outputFile), StandardCharsets.UTF_8))
+    	    	{
+    	    	
+    	        int charValue;
+    	        while ((charValue = reader.read()) != -1) { 
+    	        	// Process the character
+    	            int fileCharValue = charValue;
+    	            //Check if adjustedSum is empty and reset hashset if so
+    	            if (adjustedSum <= 0) {
+    	            	adjustedSum = bigSum;
+    	            	usedValues.clear();
+    	            }
+    	            
+    	            // Use the Gaussian-based random selection method
+    	            int passwordIndex = RandomSelector.selectGaussianIndex(utf8Values);
+    	            int passwordCharValue = utf8Values.get(passwordIndex);
+    	            
+    	            //subtract random index from big sum if it hasn't been used to create an adjusted sum
+    	            if(usedValues.add(passwordCharValue)) {
+    	            	adjustedSum -= passwordCharValue;
+    	            }
+    	            
+    	            long rawValue = (long) fileCharValue + (long) passwordCharValue + adjustedSum;
+    	            
+    	            // Wrap overflow back around
+    	            int encryptedValue = (rawValue > 0x10FFFF) 
+    	                    ? (int) (rawValue % 0x110000L)  
+    	                    : (int) rawValue;
+    	                
 
-            // Derive cryptographic seed using PBKDF2
-            PBEKeySpec spec = new PBEKeySpec(
-                passwordChars, 
-                salt, 
-                ITERATIONS, 
-                256 // Key length in bits
-            );
-            SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
-            byte[] derivedSeed = skf.generateSecret(spec).getEncoded();
-
-            // ========== RANDOM NUMBER GENERATION ========== //
-            // Initialize PRNG with derived seed
-            SecureRandom prng = SecureRandom.getInstance("SHA1PRNG");
-            prng.setSeed(derivedSeed);
-
-            // ========== Initialize encryption state ========== //
-            long bigSum = utf8Values.stream().mapToInt(Integer::intValue).sum();
-            long adjustedSum = bigSum;
-            Set<Integer> usedValues = new HashSet<>();
-
-            
-            // ========== FILE PROCESSING ========== //
-            try (BufferedReader reader = Files.newBufferedReader(Paths.get(inputFile), StandardCharsets.UTF_8);
-                 BufferedWriter writer = Files.newBufferedWriter(Paths.get(outputFile), StandardCharsets.UTF_8)) {
-
-                // Write salt as hex string at file start
-                writer.write(HexFormat.of().formatHex(salt));
-
-                int charValue;
-                
-                // Process each character in input file
-                while ((charValue = reader.read()) != -1) {
-                    // Reset state when adjustment sum is exhausted
-                    if (adjustedSum <= 0) {
-                        adjustedSum = bigSum;
-                        usedValues.clear();
-                    }
-
-                    // ========== INDEX SELECTION ========== //
-                    // Generate Gaussian-distributed index (biased toward center)
-                    int passwordIndex = (int) Math.abs(
-                        prng.nextGaussian() * (utf8Values.size() / 2.0)
-                    );
-                    passwordIndex = Math.min(passwordIndex, utf8Values.size() - 1);
-                    
-                    // Get password character value
-                    int passwordCharValue = utf8Values.get(passwordIndex);
-
-                    // Update adjustment sum tracking
-                    if (usedValues.add(passwordCharValue)) {
-                        adjustedSum -= passwordCharValue;
-                    }
-
-                    // ========== ENCRYPTION CALCULATION ========== //
-                    long rawValue = (long) charValue + passwordCharValue + adjustedSum;
-                    // Ensure valid Unicode code point (0x0000-0x10FFFF)
-                    int encryptedValue = (rawValue > 0x10FFFF) 
-                        ? (int) (rawValue % 0x110000L) 
-                        : (int) rawValue;
-
-                    // Write valid characters or replacement symbol
+    	         // Validate and convert to proper UTF-8 character
                     if (Character.isValidCodePoint(encryptedValue)) {
-                        writer.write(Character.toChars(encryptedValue));
+                        // Convert code point to char array (handles surrogate pairs if needed)
+                        char[] chars = Character.toChars(encryptedValue);
+                     
+                        // Write as UTF-8
+                        writer.write(passwordIndex + "/" + new String(chars));
+                        
                     } else {
-                        writer.write('\uFFFD'); // Unicode replacement character
+                        // Fallback for invalid code points '\uFFFD' is a replacement character
+                        writer.write(passwordIndex + "/" + '\uFFFD');    
                     }
-                }
-                
-                // Calculate and display processing time
-                long endTime = System.currentTimeMillis();
-                double elapsedSeconds = (endTime - startTime) / 1000.0;
-                
-                System.out.println("Encrypted file generated: " + outputFile);
-                System.out.printf("Processing time: %.2f seconds%n", elapsedSeconds);
-                
-            } // End of try-with-resources
-        } catch (IOException | NoSuchAlgorithmException | InvalidKeySpecException e) {
-            System.err.println("Error: " + e.getMessage());
-        }
+    	            writer.newLine();
+           
+    	        }
+
+    	        System.out.println("Encrypted values written to file: " + outputFile);
+    	       
+
+
+    	    } catch (IOException e) {
+    	        System.err.println("Error: " + e.getMessage());
+    	    }
     }
 }
-

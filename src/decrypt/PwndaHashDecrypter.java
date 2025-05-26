@@ -46,9 +46,9 @@ public class PwndaHashDecrypter {
                         }
 
                         // Get the last value from the utf8Values ArrayList
-                        char salt = utf8Values.get(utf8Values.size() - 1);
+                        Integer salt = utf8Values.get(utf8Values.size() - 1);
 
-                        char value = utf8Values.get(index);
+                        Integer value = utf8Values.get(index);
                         
                         char passwordUTF = (char) (value + salt);
 
